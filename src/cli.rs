@@ -10,8 +10,8 @@ pub struct Args {
     #[clap(long, short, arg_enum, default_value = "text")]
     pub output: OutFormat,
     /// The comic to load
-    #[clap(long, short, default_value = "0")]
-    pub num: usize,
+    #[clap(long, short)]
+    pub num: Option<usize>,
     /// Save image file to current directory
     #[clap(long, short)]
     pub save: bool,

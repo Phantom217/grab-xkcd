@@ -6,6 +6,7 @@ use std::{
 
 use anyhow::Result;
 use serde_derive::{Deserialize, Serialize};
+use url::Url;
 
 use crate::{
     cli::{Args, OutFormat},
@@ -52,6 +53,19 @@ pub struct Comic {
 }
 
 impl Comic {
+    fn save(&self) -> Result<()> {
+        use std::{env, io::Write};
+
+        let url = Url::parse(&*self.img_url)?;
+        let img_name = url.path_segments().unwrap().last().unwrap();
+        let p = env::current_dir()?;
+        let p = p.join(img_name);
+        let mut file = std::fs::File::create(p)?;
+
+        let body = reqwest::blocking::get(&self.img_url)?;
+        file.write_all(&*body.bytes()?).map_err(|e| e.into())
+    }
+
     fn print(&self, of: OutFormat) -> Result<()> {
         match of {
             OutFormat::Text => println!("{}", self),
