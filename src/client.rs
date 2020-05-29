@@ -1,9 +1,12 @@
-use std::convert::TryFrom;
+use std::{
+    convert::{TryFrom, TryInto},
+    time::Duration,
+};
 
 use anyhow::Result;
 use serde_derive::Deserialize;
 
-use crate::cli::Args;
+use crate::{cli::Args, BASE_URL};
 
 #[allow(dead_code)]
 pub struct XkcdClient {
@@ -16,7 +19,21 @@ impl XkcdClient {
     }
 
     pub fn run(&self) -> Result<()> {
-        todo!()
+        let url = if let Some(n) = self.args.num {
+            format!("{}/{}/info.0.json", BASE_URL, n)
+        } else {
+            format!("{}/info.0.json", BASE_URL)
+        };
+        let http_client = reqwest::blocking::ClientBuilder::new()
+            .timeout(Duration::from_secs(self.args.timeout))
+            .build()?;
+        let resp: ComicResponse = http_client.get(&url).send()?.text()?.try_into()?;
+        let comic: Comic = resp.into();
+        if self.args.save {
+            comic.save()?;
+        }
+        comic.print(self.args.output)?;
+        Ok(())
     }
 }
 
