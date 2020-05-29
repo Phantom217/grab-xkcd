@@ -6,7 +6,7 @@ pub struct Args {
     /// Set a connection timeout
     #[clap(long, short, default_value = "30")]
     pub timeout: u64,
-    /// Print output in a format
+    /// Print output in format FMT
     #[clap(long, short, arg_enum, default_value = "text")]
     pub output: OutFormat,
     /// The comic to load

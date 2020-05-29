@@ -4,8 +4,8 @@ mod client;
 use anyhow::Result;
 use clap::Clap;
 
+/// Base URL of xkcd
 const BASE_URL: &str = "https://xkcd.com";
-const LATEST_COMIC: usize = 0;
 
 fn main() -> Result<()> {
     let args = cli::Args::parse();

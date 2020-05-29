@@ -1,6 +1,8 @@
 use std::{
     convert::{TryFrom, TryInto},
-    fmt,
+    env, fmt,
+    fs::File,
+    io::Write,
     time::Duration,
 };
 
@@ -13,7 +15,6 @@ use crate::{
     BASE_URL,
 };
 
-#[allow(dead_code)]
 pub struct XkcdClient {
     args: Args,
 }
@@ -42,7 +43,6 @@ impl XkcdClient {
     }
 }
 
-#[allow(dead_code)]
 #[derive(Serialize)]
 pub struct Comic {
     title: String,
@@ -53,20 +53,17 @@ pub struct Comic {
 }
 
 impl Comic {
-    fn save(&self) -> Result<()> {
-        use std::{env, io::Write};
-
+    pub fn save(&self) -> Result<()> {
         let url = Url::parse(&*self.img_url)?;
-        let img_name = url.path_segments().unwrap().last().unwrap();
         let p = env::current_dir()?;
+        let img_name = url.path_segments().unwrap().last().unwrap();
         let p = p.join(img_name);
-        let mut file = std::fs::File::create(p)?;
-
+        let mut file = File::create(p)?;
         let body = reqwest::blocking::get(&self.img_url)?;
         file.write_all(&*body.bytes()?).map_err(|e| e.into())
     }
 
-    fn print(&self, of: OutFormat) -> Result<()> {
+    pub fn print(&self, of: OutFormat) -> Result<()> {
         match of {
             OutFormat::Text => println!("{}", self),
             OutFormat::Json => println!("{}", serde_json::to_string(self)?),
