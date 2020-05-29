@@ -1,12 +1,16 @@
 use std::{
     convert::{TryFrom, TryInto},
+    fmt,
     time::Duration,
 };
 
 use anyhow::Result;
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize, Serialize};
 
-use crate::{cli::Args, BASE_URL};
+use crate::{
+    cli::{Args, OutFormat},
+    BASE_URL,
+};
 
 #[allow(dead_code)]
 pub struct XkcdClient {
@@ -38,12 +42,37 @@ impl XkcdClient {
 }
 
 #[allow(dead_code)]
+#[derive(Serialize)]
 pub struct Comic {
     title: String,
     num: usize,
     date: String,
     desc: String,
     img_url: String,
+}
+
+impl Comic {
+    fn print(&self, of: OutFormat) -> Result<()> {
+        match of {
+            OutFormat::Text => println!("{}", self),
+            OutFormat::Json => println!("{}", serde_json::to_string(self)?),
+        }
+        Ok(())
+    }
+}
+
+impl fmt::Display for Comic {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Title: {}\n\
+            Comic No: {}\n\
+            Date: {}\n\
+            Description: {}\n\
+            Image: {}\n",
+            self.title, self.num, self.date, self.desc, self.img_url
+        )
+    }
 }
 
 impl From<ComicResponse> for Comic {
